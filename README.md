@@ -1,9 +1,5 @@
 # Intro
 
-This is a Spring Boot microservice that represents catalog information in a retail store. It uses the Fabric8 Maven Plugin to deploy to OpenShift.
-
-# Running on OpenShift
-
 You'll need to have access to an OpenShift cluster and the `oc` command line interface.
 
 1. Login to OpenShift and create a new project
