@@ -1,4 +1,4 @@
-# Intro
+# Intro .
 
 You'll need to have access to an OpenShift cluster and the `oc` command line interface.
 
