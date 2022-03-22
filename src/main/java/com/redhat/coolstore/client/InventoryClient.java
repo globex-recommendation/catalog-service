@@ -14,7 +14,6 @@ public interface InventoryClient {
     @RequestMapping(method = RequestMethod.GET, value = "/services/inventory/{itemId}", consumes = {MediaType.APPLICATION_JSON_VALUE})
     String getInventoryStatus(@PathVariable("itemId") String itemId);
 
-    //TODO: Add Fallback factory here
     @Component
     class InventoryClientFallbackFactory implements FallbackFactory<InventoryClient> {
       @Override

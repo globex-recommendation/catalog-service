@@ -1,8 +1,21 @@
 package com.redhat.coolstore.service;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 import com.redhat.coolstore.model.Product;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @CrossOrigin
@@ -12,17 +25,37 @@ public class CatalogEndpoint {
     private final CatalogService catalogService;
 
     public CatalogEndpoint(CatalogService catalogService) {
-      this.catalogService = catalogService;
+        this.catalogService = catalogService;
     }
 
     @GetMapping("/products")
-    public List<Product> readAll() {
-      return this.catalogService.readAll();
+    public Page<Product> readAll(@RequestParam(required = false) Integer page, @RequestParam(required = false) Integer limit) {
+        if (limit == null) {
+            List<Product> products = catalogService.readAll();
+            return new PageImpl<>(products, PageRequest.of(0, products.size()), products.size());
+        } else {
+            if (page == null) {
+                page = 0;
+            } else {
+                page = page -1;
+            }
+            return catalogService.readAll(PageRequest.of(page, limit));
+        }
     }
 
     @GetMapping("/product/{id}")
-    public Product read(@PathVariable("id") String id) {
-      return this.catalogService.read(id);
+    public ResponseEntity<Product> read(@PathVariable("id") String id) {
+        Product product = catalogService.read(id);
+        if (product != null) {
+            return new ResponseEntity<>(product, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/product/list/{ids}")
+    public List<Product> readList(@PathVariable("ids") List<String> ids) {
+        return ids.stream().map(catalogService::read).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
 }

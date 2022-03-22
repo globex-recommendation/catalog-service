@@ -4,6 +4,10 @@ import java.util.List;
 
 import com.redhat.coolstore.model.Product;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -11,22 +15,32 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class ProductRepository {
 
-    //TODO: Autowire the jdbcTemplate here
     @Autowired
     private JdbcTemplate jdbcTemplate;
-    
-    //TODO: Add row mapper here
+
     private RowMapper<Product> rowMapper = (rs, rowNum) -> new Product(
             rs.getString("itemId"),
             rs.getString("name"),
             rs.getString("description"),
             rs.getDouble("price"));
-    //TODO: Create a method for returning all products
+
     public List<Product> readAll() {
         return this.jdbcTemplate.query("SELECT * FROM catalog", rowMapper);
     }
-    //TODO: Create a method for returning one product
-    public Product findById(String id) {
-        return this.jdbcTemplate.queryForObject("SELECT * FROM catalog WHERE itemId = ?", new Object[]{id}, rowMapper);
+
+    public Page<Product> readAll(Pageable page) {
+        Integer count = jdbcTemplate.queryForObject("SELECT count(*) FROM catalog", Integer.class);
+        List<Product> products = this.jdbcTemplate.query("SELECT * FROM catalog LIMIT " + page.getPageSize() + " OFFSET " + page.getOffset(), rowMapper );
+        return new PageImpl<Product>(products, page, count);
     }
+
+    public Product findById(String id) {
+        try {
+            return jdbcTemplate.queryForObject("SELECT * FROM catalog WHERE itemId = ?", new Object[]{id}, rowMapper);
+        } catch (DataAccessException dae) {
+            return null;
+        }
+
+    }
+
 }
