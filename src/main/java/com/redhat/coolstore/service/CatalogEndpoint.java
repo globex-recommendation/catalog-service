@@ -29,9 +29,10 @@ public class CatalogEndpoint {
     }
 
     @GetMapping("/products")
-    public Page<Product> readAll(@RequestParam(required = false) Integer page, @RequestParam(required = false) Integer limit) {
+    public Page<Product> readAll(@RequestParam(required = false) Integer page, @RequestParam(required = false) Integer limit, @RequestParam(required = false) Boolean inventory) {
+        boolean inv = inventory == null || inventory;
         if (limit == null) {
-            List<Product> products = catalogService.readAll();
+            List<Product> products = catalogService.readAll(inv);
             return new PageImpl<>(products, PageRequest.of(0, products.size()), products.size());
         } else {
             if (page == null) {
@@ -39,13 +40,14 @@ public class CatalogEndpoint {
             } else {
                 page = page -1;
             }
-            return catalogService.readAll(PageRequest.of(page, limit));
+            return catalogService.readAll(PageRequest.of(page, limit), inv);
         }
     }
 
     @GetMapping("/product/{id}")
-    public ResponseEntity<Product> read(@PathVariable("id") String id) {
-        Product product = catalogService.read(id);
+    public ResponseEntity<Product> read(@PathVariable("id") String id, @RequestParam(required = false) Boolean inventory) {
+        boolean inv = inventory == null || inventory;
+        Product product = catalogService.read(id, inv);
         if (product != null) {
             return new ResponseEntity<>(product, HttpStatus.OK);
         } else {
@@ -54,8 +56,9 @@ public class CatalogEndpoint {
     }
 
     @GetMapping("/product/list/{ids}")
-    public List<Product> readList(@PathVariable("ids") List<String> ids) {
-        return ids.stream().map(catalogService::read).filter(Objects::nonNull).collect(Collectors.toList());
+    public List<Product> readList(@PathVariable("ids") List<String> ids, @RequestParam(required = false) Boolean inventory) {
+        boolean inv = inventory == null || inventory;
+        return ids.stream().map(id -> catalogService.read(id, inv)).filter(Objects::nonNull).collect(Collectors.toList());
     }
 
 }

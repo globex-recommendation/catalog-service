@@ -23,40 +23,46 @@ public class CatalogService {
     @Autowired
     private InventoryClient inventoryClient;
 
-    public Product read(String id) {
+    public Product read(String id, boolean inventory) {
         Product product = repository.findById(id);
         if (product == null) {
             return null;
         }
-        JSONArray jsonArray = new JSONArray(inventoryClient.getInventoryStatus(product.getItemId()));
-        List<String> quantity = IntStream.range(0, jsonArray.length())
-                .mapToObj(index -> ((JSONObject) jsonArray.get(index))
-                        .optString("quantity")).collect(Collectors.toList());
-        product.setQuantity(Integer.parseInt(quantity.get(0)));
+        if (inventory) {
+            JSONArray jsonArray = new JSONArray(inventoryClient.getInventoryStatus(product.getItemId()));
+            List<String> quantity = IntStream.range(0, jsonArray.length())
+                    .mapToObj(index -> ((JSONObject) jsonArray.get(index))
+                            .optString("quantity")).collect(Collectors.toList());
+            product.setQuantity(Integer.parseInt(quantity.get(0)));
+        }
         return product;
     }
 
-    public List<Product> readAll() {
+    public List<Product> readAll(boolean inventory) {
         List<Product> productList = repository.readAll();
-        productList.forEach(p -> {
-            JSONArray jsonArray = new JSONArray(this.inventoryClient.getInventoryStatus(p.getItemId()));
-            List<String> quantity = IntStream.range(0, jsonArray.length())
-                    .mapToObj(index -> ((JSONObject) jsonArray.get(index))
-                            .optString("quantity")).collect(Collectors.toList());
-            p.setQuantity(Integer.parseInt(quantity.get(0)));
-        });
+        if (inventory) {
+            productList.forEach(p -> {
+                JSONArray jsonArray = new JSONArray(this.inventoryClient.getInventoryStatus(p.getItemId()));
+                List<String> quantity = IntStream.range(0, jsonArray.length())
+                        .mapToObj(index -> ((JSONObject) jsonArray.get(index))
+                                .optString("quantity")).collect(Collectors.toList());
+                p.setQuantity(Integer.parseInt(quantity.get(0)));
+            });
+        }
         return productList;
     }
 
-    public Page<Product> readAll(Pageable page) {
+    public Page<Product> readAll(Pageable page, boolean inventory) {
         Page<Product> productPage = repository.readAll(page);
-        productPage.forEach(p -> {
-            JSONArray jsonArray = new JSONArray(this.inventoryClient.getInventoryStatus(p.getItemId()));
-            List<String> quantity = IntStream.range(0, jsonArray.length())
-                    .mapToObj(index -> ((JSONObject) jsonArray.get(index))
-                            .optString("quantity")).collect(Collectors.toList());
-            p.setQuantity(Integer.parseInt(quantity.get(0)));
-        });
+        if (inventory) {
+            productPage.forEach(p -> {
+                JSONArray jsonArray = new JSONArray(this.inventoryClient.getInventoryStatus(p.getItemId()));
+                List<String> quantity = IntStream.range(0, jsonArray.length())
+                        .mapToObj(index -> ((JSONObject) jsonArray.get(index))
+                                .optString("quantity")).collect(Collectors.toList());
+                p.setQuantity(Integer.parseInt(quantity.get(0)));
+            });
+        }
         return productPage;
     }
 

@@ -2,6 +2,9 @@ package com.redhat.coolstore.model;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Product implements Serializable {
 
 	private static final long serialVersionUID = -7304814269819778382L;
@@ -9,7 +12,7 @@ public class Product implements Serializable {
 	private String name;
 	private String desc;
 	private double price;
-	private int quantity;
+	private Integer quantity;
 
 	public Product() {
 
@@ -46,10 +49,10 @@ public class Product implements Serializable {
 	public void setPrice(double price) {
 		this.price = price;
 	}
-    public int getQuantity() {
+    public Integer getQuantity() {
         return quantity;
     }
-    public void setQuantity(int quantity) {
+    public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
 
