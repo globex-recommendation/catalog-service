@@ -1,8 +1,6 @@
 package com.redhat.coolstore.service;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 import com.redhat.coolstore.model.Product;
 import org.springframework.data.domain.Page;
@@ -58,7 +56,7 @@ public class CatalogEndpoint {
     @GetMapping("/product/list/{ids}")
     public List<Product> readList(@PathVariable("ids") List<String> ids, @RequestParam(required = false) Boolean inventory) {
         boolean inv = inventory == null || inventory;
-        return ids.stream().map(id -> catalogService.read(id, inv)).filter(Objects::nonNull).collect(Collectors.toList());
+        return catalogService.readByIds(ids, inv);
     }
 
 }

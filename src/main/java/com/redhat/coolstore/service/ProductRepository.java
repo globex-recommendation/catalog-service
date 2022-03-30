@@ -1,5 +1,6 @@
 package com.redhat.coolstore.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.redhat.coolstore.model.Product;
@@ -40,7 +41,15 @@ public class ProductRepository {
         } catch (DataAccessException dae) {
             return null;
         }
+    }
 
+    public List<Product> findByIdList(List<String> ids) {
+        if (ids.isEmpty()) {
+            return new ArrayList<>();
+        }
+        StringBuilder sb = new StringBuilder();
+        ids.forEach(id -> sb.append("'").append(id).append("'").append(","));
+        return jdbcTemplate.query("SELECT * FROM catalog WHERE itemId in (" + sb.substring(0,sb.length() -1) + ")", rowMapper);
     }
 
 }

@@ -66,4 +66,17 @@ public class CatalogService {
         return productPage;
     }
 
+    public List<Product> readByIds(List<String> ids, boolean inventory) {
+        List<Product> productList = repository.findByIdList(ids);
+        if (inventory) {
+            productList.forEach(p -> {
+                JSONArray jsonArray = new JSONArray(this.inventoryClient.getInventoryStatus(p.getItemId()));
+                List<String> quantity = IntStream.range(0, jsonArray.length())
+                        .mapToObj(index -> ((JSONObject) jsonArray.get(index))
+                                .optString("quantity")).collect(Collectors.toList());
+                p.setQuantity(Integer.parseInt(quantity.get(0)));
+            });;
+        }
+        return productList;
+    }
 }
