@@ -20,10 +20,12 @@ public class ProductRepository {
     private JdbcTemplate jdbcTemplate;
 
     private RowMapper<Product> rowMapper = (rs, rowNum) -> new Product(
-            rs.getString("itemId"),
+            rs.getString("item_id"),
             rs.getString("name"),
             rs.getString("description"),
-            rs.getDouble("price"));
+            rs.getDouble("price"),
+            rs.getString("category"),
+            rs.getString("image"));
 
     public List<Product> readAll() {
         return this.jdbcTemplate.query("SELECT * FROM catalog", rowMapper);
@@ -32,7 +34,7 @@ public class ProductRepository {
     public Page<Product> readAll(Pageable page) {
         Integer count = jdbcTemplate.queryForObject("SELECT count(*) FROM catalog", Integer.class);
         List<Product> products = this.jdbcTemplate.query("SELECT * FROM catalog LIMIT " + page.getPageSize() + " OFFSET " + page.getOffset(), rowMapper );
-        return new PageImpl<Product>(products, page, count);
+        return new PageImpl<>(products, page, count);
     }
 
     public Product findById(String id) {
