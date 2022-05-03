@@ -79,4 +79,18 @@ public class CatalogService {
         }
         return productList;
     }
+
+    public List<Product> readFeaturedProductsByCategory(String category, boolean inventory) {
+        List<Product> productList = repository.findFeaturedProducts(category);
+        if (inventory) {
+            productList.forEach(p -> {
+                JSONArray jsonArray = new JSONArray(this.inventoryClient.getInventoryStatus(p.getItemId()));
+                List<String> quantity = IntStream.range(0, jsonArray.length())
+                        .mapToObj(index -> ((JSONObject) jsonArray.get(index))
+                                .optString("quantity")).collect(Collectors.toList());
+                p.setQuantity(Integer.parseInt(quantity.get(0)));
+            });
+        }
+        return productList;
+    }
 }

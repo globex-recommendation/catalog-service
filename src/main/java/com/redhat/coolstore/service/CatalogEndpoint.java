@@ -59,4 +59,11 @@ public class CatalogEndpoint {
         return catalogService.readByIds(ids, inv);
     }
 
+    @GetMapping("/product/{category}/featured")
+    public List<Product> readFeaturedProductsByCategory(@PathVariable("category") String category, @RequestParam(required = false) Boolean inventory) {
+        boolean inv = inventory == null || inventory;
+        return catalogService.readFeaturedProductsByCategory(category, inv);
+    }
+
+
 }

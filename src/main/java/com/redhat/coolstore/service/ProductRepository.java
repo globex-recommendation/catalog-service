@@ -2,13 +2,19 @@ package com.redhat.coolstore.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import com.redhat.coolstore.model.Product;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.jdbc.core.ColumnMapRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -39,7 +45,7 @@ public class ProductRepository {
 
     public Product findById(String id) {
         try {
-            return jdbcTemplate.queryForObject("SELECT * FROM catalog WHERE itemId = ?", new Object[]{id}, rowMapper);
+            return jdbcTemplate.queryForObject("SELECT * FROM catalog WHERE item_id = ?", new Object[]{id}, rowMapper);
         } catch (DataAccessException dae) {
             return null;
         }
@@ -51,7 +57,18 @@ public class ProductRepository {
         }
         StringBuilder sb = new StringBuilder();
         ids.forEach(id -> sb.append("'").append(id).append("'").append(","));
-        return jdbcTemplate.query("SELECT * FROM catalog WHERE itemId in (" + sb.substring(0,sb.length() -1) + ")", rowMapper);
+        return jdbcTemplate.query("SELECT * FROM catalog WHERE item_id in (" + sb.substring(0,sb.length() -1) + ")", rowMapper);
     }
 
+    public List<Product> findFeaturedProducts(String category) {
+        List<Map<String, Object>> featuredProducts = jdbcTemplate.query("SELECT * FROM featured_products WHERE category = '" + category + "'", new ColumnMapRowMapper());
+        if (featuredProducts.isEmpty()) {
+            return new ArrayList<Product>();
+        }
+        JSONArray array = new JSONArray((String)featuredProducts.get(0).get("items"));
+        return IntStream.range(0, array.length()).mapToObj(array::get).map(o -> (JSONObject)o)
+                .map(j -> j.getString("productId"))
+                .map(this::findById)
+                .collect(Collectors.toList());
+    }
 }
