@@ -1,8 +1,8 @@
 package com.redhat.coolstore.model;
 
-import java.io.Serializable;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
+
+import java.io.Serializable;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Product implements Serializable {
@@ -11,6 +11,7 @@ public class Product implements Serializable {
 	private String itemId;
 	private String name;
 	private String desc;
+	private String category;
 	private double price;
 	private Integer quantity;
 
@@ -18,11 +19,12 @@ public class Product implements Serializable {
 
 	}
 
-	public Product(String itemId, String name, String desc, double price) {
+	public Product(String itemId, String name, String desc, String category, double price) {
 		super();
 		this.itemId = itemId;
 		this.name = name;
 		this.desc = desc;
+		this.category = category;
 		this.price = price;
 	}
 	public String getItemId() {
@@ -49,6 +51,12 @@ public class Product implements Serializable {
 	public void setPrice(double price) {
 		this.price = price;
 	}
+	public String getCategory() {
+		return this.category;
+	}
+	public void setCategory(String category) {
+		this.category = category;
+	}
     public Integer getQuantity() {
         return quantity;
     }
@@ -59,7 +67,7 @@ public class Product implements Serializable {
     @Override
 	public String toString() {
 		return "Product [itemId=" + itemId + ", name=" + name + ", desc="
-				+ desc + ", price=" + price + ", quantity=" + quantity + "]";
+				+ desc + ", category=" + category + ", price=" + price + ", quantity=" + quantity + "]";
 	}
 
 
